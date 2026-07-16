@@ -1,0 +1,28 @@
+{
+  "name": "upstream",
+  "version": "1.0.0",
+  "description": "> 💡 **Notice**: This documentation is community-maintained. If you spot any translation inaccuracies or content that has drifted from the English version, please feel free to open a PR! > > 💡 **提示**:本文档由社区共同维护。如果您发现翻译不准确,或与英文版本存在出入,欢迎随时提交 PR!",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dograh-hq/dograh.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dograh-hq/dograh/issues"
+  },
+  "homepage": "https://github.com/dograh-hq/dograh#readme",
+  "devDependencies": {
+    "railway": "^3.5.7"
+  }
+}

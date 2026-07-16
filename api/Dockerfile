@@ -23,9 +23,8 @@ ENV VIRTUAL_ENV=/opt/venv \
 RUN python -m venv "$VIRTUAL_ENV"
 
 # Layer 1: API deps. Cache invalidates only when requirements.txt changes.
-RUN --mount=type=bind,source=api/requirements.txt,target=/tmp/req.txt \
-    --mount=type=cache,target=/root/.cache/uv \
-    uv pip install -r /tmp/req.txt
+COPY api/requirements.txt /tmp/req.txt
+RUN uv pip install -r /tmp/req.txt
 
 # Layer 2: pipecat deps. Cache invalidates when pipecat source changes.
 # After installing pipecat, two hardening tweaks:
@@ -35,9 +34,8 @@ RUN --mount=type=bind,source=api/requirements.txt,target=/tmp/req.txt \
 #   2. Pre-download NLTK's punkt_tab tokenizer so pipecat's text processing
 #      doesn't hit the network on first agent run. NLTK auto-finds it under
 #      sys.prefix/nltk_data, so it travels with the venv on COPY.
-RUN --mount=type=bind,source=pipecat,target=/tmp/pipecat,rw \
-    --mount=type=cache,target=/root/.cache/uv \
-    uv pip install '/tmp/pipecat[cartesia,deepgram,openai,elevenlabs,groq,google,azure,sarvam,soundfile,silero,webrtc,speechmatics,openrouter,camb,mcp,inworld,smallest]' \
+COPY pipecat /tmp/pipecat
+RUN uv pip install '/tmp/pipecat[cartesia,deepgram,openai,elevenlabs,groq,google,azure,sarvam,soundfile,silero,webrtc,speechmatics,openrouter,camb,mcp,inworld,smallest]' \
  && uv pip uninstall opencv-python \
  && uv pip install opencv-python-headless \
  && python -c "import nltk; nltk.download('punkt_tab', download_dir='/opt/venv/nltk_data', quiet=True)"
