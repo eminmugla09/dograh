@@ -397,14 +397,30 @@ def _build_webhook_payload(
     Always surfaces the call disposition on the outgoing payload, even when the
     template author didn't reference it. Fill only if absent so a template that
     sets it explicitly keeps its own value.
+
+    Note: ``render_template`` serializes dict/list values into JSON strings when
+    they are referenced via ``{{variable}}`` inside a JSON template. We then
+    re-inject the raw objects for the well-known context fields so the outgoing
+    webhook body contains nested JSON objects instead of escaped strings.
     """
     payload = render_template(webhook_data.payload_template or {}, render_context)
 
-    if isinstance(payload, dict):
-        gathered_context = render_context.get("gathered_context") or {}
-        payload.setdefault(
-            "call_disposition", gathered_context.get("call_disposition", "")
-        )
+    if not isinstance(payload, dict):
+        return payload
+
+    gathered_context = render_context.get("gathered_context") or {}
+    payload.setdefault(
+        "call_disposition", gathered_context.get("call_disposition", "")
+    )
+
+    # Re-inject raw context objects so downstream endpoints receive proper
+    # nested JSON rather than stringified JSON that may be mangled by
+    # template-level escape handling.
+    for context_key in ("initial_context", "gathered_context", "cost_info", "transcript"):
+        if context_key in payload:
+            raw_value = render_context.get(context_key)
+            if raw_value is not None:
+                payload[context_key] = raw_value
 
     return payload
 
