@@ -45,8 +45,18 @@ export default defineRailway(() => {
       MINIO_ROOT_USER: preserve(),
     },
   });
+  const dograhUi = service("dograh-ui", {
+    source: github("eminmugla09/dograh", { branch: "railway-build-fix" }),
+    build: { buildEnvironment: "V3", builder: "DOCKERFILE", dockerfilePath: "ui/Dockerfile" },
+    replicas: { "us-east4-eqdc4a": 1 },
+    env: {
+      BACKEND_URL: `http://${dograhApi.env.RAILWAY_PRIVATE_DOMAIN}:8000`,
+      NODE_ENV: "production",
+      HOSTNAME: "0.0.0.0",
+    },
+  });
 
   return project("Dogra-Test", {
-    resources: [dograhApi, Redis, Postgres, minio, redisVolume, postgresVolume],
+    resources: [dograhApi, dograhUi, Redis, Postgres, minio, redisVolume, postgresVolume],
   });
 });
