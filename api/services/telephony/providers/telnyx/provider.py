@@ -377,12 +377,21 @@ class TelnyxProvider(TelephonyProvider):
             # media_format.encoding is the codec Telnyx delivers on the
             # inbound direction (Telnyx → Dograh); the outbound direction is
             # pinned to PCMU separately via stream_bidirectional_codec.
+            # The serializer only supports PCMU and PCMA — if Telnyx reports a
+            # different codec (e.g. G722 from the PSTN leg), fall back to PCMU
+            # since stream_bidirectional_codec is always PCMU in our config.
             try:
                 stream_id = start_data.get("stream_id", "")
                 start_info = start_data.get("start", {})
                 call_control_id = start_info.get("call_control_id", "")
                 media_format = start_info.get("media_format") or {}
                 encoding = media_format.get("encoding") or "PCMU"
+                if encoding not in ("PCMU", "PCMA"):
+                    logger.warning(
+                        f"Telnyx reported unsupported encoding '{encoding}', "
+                        f"falling back to PCMU (stream_bidirectional_codec=PCMU)"
+                    )
+                    encoding = "PCMU"
             except (KeyError, AttributeError):
                 logger.error("Missing stream_id or call_control_id in start message")
                 await websocket.close(code=4400, reason="Missing stream identifiers")
