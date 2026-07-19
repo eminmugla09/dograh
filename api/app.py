@@ -93,7 +93,9 @@ app = FastAPI(
 # (same-origin, so CORS does not apply). Keep it permissive without
 # credentials — wildcard + credentials is rejected by browsers and unsafe.
 # SaaS deployments must set CORS_ALLOWED_ORIGINS to an explicit allowlist.
-if DEPLOYMENT_MODE == "oss":
+# OSS deployments with a split UI/API origin can also set CORS_ALLOWED_ORIGINS
+# to lock down which browser origins may call the API.
+if DEPLOYMENT_MODE == "oss" and not CORS_ALLOWED_ORIGINS:
     cors_origins: list[str] = ["*"]
     cors_allow_credentials = False
 else:
