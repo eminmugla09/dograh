@@ -434,7 +434,7 @@ class TelnyxProvider(TelephonyProvider):
                 f"(call ended pre-answer): code={e.code}, reason={e.reason!r}"
             )
         except Exception as e:
-            logger.error(f"Error in Telnyx WebSocket handler: {e}")
+            logger.error(f"Error in Telnyx WebSocket handler: {e}", exc_info=True)
             raise
 
     async def answer_and_stream(
