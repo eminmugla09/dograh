@@ -706,7 +706,7 @@ async def _handle_telephony_websocket(
     except WebSocketDisconnect as e:
         logger.info(f"WebSocket disconnected: code={e.code}, reason={e.reason}")
     except Exception as e:
-        logger.error(f"Error in WebSocket connection: {e}")
+        logger.exception(f"Error in WebSocket connection: {e}")
         try:
             await websocket.close(1011, "Internal server error")
         except RuntimeError:
